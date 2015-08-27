@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: CAHNRSWP Style Guide
-Description: A custom content type for a Chicago Manual-like online style guide 
+Description: Create an online style guide.
 Author: CAHNRS, philcable
 Version: 0.1.1
 */
@@ -44,7 +44,7 @@ class CAHNRSWP_Style_Guide {
 			'not_found'           => 'Not found',
 			'not_found_in_trash'  => 'Not found in Trash',
 		);
-	
+
 		$args = array(
 			'label'               => 'style-guide',
 			'description'         => 'A style guide for numbered WSU Extension publications, CAHNRS marketing materials, and department or program newsletters.',
@@ -64,7 +64,7 @@ class CAHNRSWP_Style_Guide {
 			'publicly_queryable'  => true,
 			'capability_type'     => 'page',
 		);
-	
+
 		register_post_type( $this->style_guide_content_type, $args, 0 );
 
 	}
@@ -97,13 +97,13 @@ class CAHNRSWP_Style_Guide {
 	 */
 	public function template_include( $template ) {
 		if ( $this->style_guide_content_type == get_post_type() ) {
-			$template = plugin_dir_path( __FILE__ ) . 'templates/single.php';
+			$template = __DIR__ . '/templates/single.php';
 		}
 		if ( is_post_type_archive( $this->style_guide_content_type ) ) {
 			if ( is_search() ) {
-				$template = plugin_dir_path( __FILE__ ) . 'templates/search.php';
+				$template = __DIR__ . '/templates/search-results.php';
 			} else {
-				$template = plugin_dir_path( __FILE__ ) . 'templates/index.php';
+				$template = __DIR__ . '/templates/index.php';
 			}
 		}
 		return $template;
@@ -130,41 +130,6 @@ class CAHNRSWP_Style_Guide {
 			'after_title'   => ''
 		) );
 	}
-
-	/**
-	 * Paging function.
-	 */
-	/*public function style_guide_paging() {
-
-		$pagelist = get_pages( 'sort_column=menu_order&sort_order=asc&post_type='. $this->style_guide_content_type );
-
-		$pages = array();
-
-		foreach ($pagelist as $page) {
-			$pages[] += $page->ID;
-		}
-
-		$current = array_search( get_the_ID(), $pages );
-		$prevID = $pages[$current-1];
-		$nextID = $pages[$current+1];
-
-		echo '<p class="style-guide-page-nav">';
-
-		if ( $prevID ) {
-			echo '<a class="previous" href="' . get_permalink($prevID) . '" title="Link to ' . get_the_title($prevID) . '">&laquo;</a>';
-		}
-
-		if ( $prevID && $nextID ) {
-			echo '<span class="pipe">|</span>';
-		}
-
-		if ( $nextID ) {
-			echo '<a class="next" href="' . get_permalink($nextID) . '" title="Link to ' . get_the_title($nextID) . '">&raquo;</a>';
-		}
-
-		echo '</p>';
-
-	}*/
 
 }
 
