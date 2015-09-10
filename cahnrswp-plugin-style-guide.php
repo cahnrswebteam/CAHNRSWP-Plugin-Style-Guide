@@ -18,7 +18,7 @@ class CAHNRSWP_Style_Guide {
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ), 11 );
-		add_filter( 'spine_sub_header_default', array( $this, 'spine_sub_header_default' ), 10, 2 );
+		add_filter( 'spine_sub_header_default', array( $this, 'spine_sub_header_default' ), 10, 1 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_filter( 'template_include', array( $this, 'template_include' ), 1 );
 		add_action( 'widgets_init', array( $this, 'widgets_init' ) );
@@ -72,10 +72,11 @@ class CAHNRSWP_Style_Guide {
 	/**
 	 * spine_sub_header_default
 	 */
-	public function spine_sub_header_default() {
+	public function spine_sub_header_default( $sub_header_default ) {
 		if ( $this->style_guide_content_type === get_post_type() && is_singular() ) {
-			return 'Style Guide';
+			$sub_header_default = 'Style Guide';
 		}
+		return $sub_header_default;
 	}
 
 	/**
