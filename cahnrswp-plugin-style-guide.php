@@ -22,6 +22,7 @@ class CAHNRSWP_Style_Guide {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_filter( 'template_include', array( $this, 'template_include' ), 1 );
+		add_filter( 'nav_menu_css_class', array( $this, 'nav_menu_css_class'), 100, 3 );
 	}
 
 	/**
@@ -78,6 +79,7 @@ class CAHNRSWP_Style_Guide {
 	public function admin_init() {
 		register_setting( 'style_guide_options', 'style_guide_about' );
 		register_setting( 'style_guide_options', 'style_guide_footer' );
+		register_setting( 'style_guide_options', 'style_guide_menu_item' );
 	}
 
 	/**
@@ -98,6 +100,25 @@ class CAHNRSWP_Style_Guide {
 					<tr valign="top">
 						<th scope="row">Table of Contents Sidebar, Article Footer</th>
 						<td><?php wp_editor( wp_kses_post( get_option( 'style_guide_footer' ) ), 'style_guide_footer' ); ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Style Guide Menu Item</th>
+						<td>
+							<p>Select a menu item to mark as active when viewing a style guide article.</p>
+							<?php
+								$menu_name = 'site';
+								$locations = get_nav_menu_locations();
+								if ( isset( $locations[ $menu_name ] ) ) :
+									$menu = wp_get_nav_menu_object( $locations[ $menu_name ] );
+									$menu_items = wp_get_nav_menu_items( $menu->term_id );
+									?>
+									<select name="style_guide_menu_item">
+									<?php foreach ( $menu_items as $menu_item ) : ?>
+										<option value="<?php echo $menu_item->ID; ?>" <?php selected( get_option( 'style_guide_menu_item' ), $menu_item->ID ); ?>><?php echo $menu_item->title; ?></option>
+									<?php endforeach; ?>
+									</select>
+								<?php endif; ?>
+						</td>
 					</tr>
 				</table>
 				<?php submit_button(); ?>
@@ -135,6 +156,25 @@ class CAHNRSWP_Style_Guide {
 			}
 		}
 		return $template;
+	}
+
+	/**
+	 * Apply 'dogeared' class to the "style_guide_menu_item" page when viewing a style guide article.
+	 *
+	 * @param array $classes Current list of nav menu classes.
+	 * @param WP_Post $item Post object representing the menu item.
+	 * @param stdClass $args Arguments used to create the menu.
+	 *
+	 * @return array Modified list of nav menu classes.
+	 */
+	public function nav_menu_css_class( $classes, $item, $args ) {
+		$id = esc_attr( get_option( 'style_guide_menu_item' ) );
+		$style_guide = $this->style_guide_post_type == get_post_type();
+		$style_guide_archive = is_post_type_archive( $this->style_guide_post_type ); // May not be necessary
+		if ( 'site' === $args->theme_location && $item->ID == $id && ( $style_guide || $style_guide_archive ) ) {
+			$classes[] = 'dogeared';
+		}
+		return $classes;
 	}
 
 }
