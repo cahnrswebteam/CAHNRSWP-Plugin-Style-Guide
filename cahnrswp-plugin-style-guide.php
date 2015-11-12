@@ -11,24 +11,23 @@ class CAHNRSWP_Style_Guide {
 	/**
 	 * @var string Content type slug.
 	 */
-	var $style_guide_content_type = 'style-guide';
+	var $style_guide_post_type = 'style-guide';
 
 	/**
 	 * Start the plugin and apply associated hooks.
 	 */
 	public function __construct() {
 		add_action( 'init', array( $this, 'init' ), 11 );
-		add_filter( 'spine_sub_header_default', array( $this, 'spine_sub_header_default' ), 10, 1 );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'wp_enqueue_scripts' ) );
 		add_filter( 'template_include', array( $this, 'template_include' ), 1 );
-		add_action( 'widgets_init', array( $this, 'widgets_init' ) );
 	}
 
 	/**
 	 * Register the Style Guide post type.
 	 */
 	public function init() {
-
 		$labels = array(
 			'name'                => 'Style Guide',
 			'singular_name'       => 'Style Guide Article',
@@ -44,7 +43,6 @@ class CAHNRSWP_Style_Guide {
 			'not_found'           => 'Not found',
 			'not_found_in_trash'  => 'Not found in Trash',
 		);
-
 		$args = array(
 			'label'               => 'style-guide',
 			'description'         => 'A style guide for numbered WSU Extension publications, CAHNRS marketing materials, and department or program newsletters.',
@@ -64,26 +62,55 @@ class CAHNRSWP_Style_Guide {
 			'publicly_queryable'  => true,
 			'capability_type'     => 'page',
 		);
-
-		register_post_type( $this->style_guide_content_type, $args, 0 );
-
+		register_post_type( $this->style_guide_post_type, $args, 0 );
 	}
 
 	/**
-	 * spine_sub_header_default
+	 * Add options page link to the menu.
 	 */
-	public function spine_sub_header_default( $sub_header_default ) {
-		if ( $this->style_guide_content_type === get_post_type() && is_singular() ) {
-			$sub_header_default = 'Style Guide';
-		}
-		return $sub_header_default;
+	public function admin_menu() {
+		add_submenu_page( 'edit.php?post_type=' . $this->style_guide_post_type, 'Style Guide Settings', 'Settings', 'manage_options', 'style_guide_settings', array( $this, 'style_guide_settings_page' ) );
+	}
+
+	/**
+	 * Options page settings.
+	 */
+	public function admin_init() {
+		register_setting( 'style_guide_options', 'style_guide_about' );
+		register_setting( 'style_guide_options', 'style_guide_footer' );
+	}
+
+	/**
+	 * Options page content.
+	 */
+	public function style_guide_settings_page() {
+		?>
+		<div class="wrap">
+			<h2>Style Guide Settings</h2>
+			<form method="post" action="options.php">
+				<?php settings_fields( 'style_guide_options' ); ?>
+				<?php do_settings_sections( 'style_guide_options' ); ?>
+				<table class="form-table">
+					<tr valign="top">
+						<th scope="row">Table of Contents Introductory Text</th>
+						<td><?php wp_editor( wp_kses_post( get_option( 'style_guide_about' ) ), 'style_guide_about' ); ?></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row">Table of Contents Sidebar, Article Footer</th>
+						<td><?php wp_editor( wp_kses_post( get_option( 'style_guide_footer' ) ), 'style_guide_footer' ); ?></td>
+					</tr>
+				</table>
+				<?php submit_button(); ?>
+			</form>
+		</div>
+		<?php
 	}
 
 	/**
 	 * Enqueue the scripts and styles used on the front end.
 	 */
 	public function wp_enqueue_scripts() {
-		if ( $this->style_guide_content_type === get_post_type() ) {
+		if ( $this->style_guide_post_type === get_post_type() ) {
 			wp_enqueue_style( 'style-guide', plugins_url( 'css/styleguide.css', __FILE__ ), array() );
 			wp_enqueue_script( 'style-guide', plugins_url( 'js/styleguide.js', __FILE__ ), array( 'jquery' ), '0.1', true );
 		}
@@ -97,10 +124,10 @@ class CAHNRSWP_Style_Guide {
 	 * @return string template path
 	 */
 	public function template_include( $template ) {
-		if ( $this->style_guide_content_type == get_post_type() ) {
+		if ( $this->style_guide_post_type == get_post_type() ) {
 			$template = __DIR__ . '/templates/single.php';
 		}
-		if ( is_post_type_archive( $this->style_guide_content_type ) ) {
+		if ( is_post_type_archive( $this->style_guide_post_type ) ) {
 			if ( is_search() ) {
 				$template = __DIR__ . '/templates/search-results.php';
 			} else {
@@ -108,28 +135,6 @@ class CAHNRSWP_Style_Guide {
 			}
 		}
 		return $template;
-	}
-
-	/**
-	 * Register widget areas.
-	 */
-	public function widgets_init() {
-		register_sidebar( array(
-			'name'          => 'Style Guide TOC',
-			'id'            => 'style-guide',
-			'before_widget' => '',
-			'after_widget'  => '',
-			'before_title'  => '',
-			'after_title'   => ''
-		) );
-		register_sidebar( array(
-			'name'          => 'Style Guide TOC Sidebar',
-			'id'            => 'style-guide-sidebar',
-			'before_widget' => '',
-			'after_widget'  => '',
-			'before_title'  => '',
-			'after_title'   => ''
-		) );
 	}
 
 }

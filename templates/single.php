@@ -8,6 +8,10 @@
 
 		<div class="column one">
 
+			<header class="section-header">
+				<h1 class="section-title">Style Guide</h1>
+			</header>
+
 			<p><a href="<?php echo get_post_type_archive_link( 'style-guide' ); ?>">Style Guide</a> &raquo; <?php
 					$ancestors = get_ancestors( get_the_ID(), 'style-guide' );
 					if ( $ancestors ) {
@@ -96,10 +100,12 @@
 			<div class="column one">
 
 				<?php
-					if ( is_active_sidebar( 'style-guide-sidebar' ) ) {
+					/*if ( is_active_sidebar( 'style-guide-sidebar' ) ) {
 						dynamic_sidebar( 'style-guide-sidebar' );
-					}
+					}*/
 				?>
+
+				<?php echo wpautop( wp_kses_post( get_option( 'style_guide_footer' ) ) ); ?>
 
 			</div>
 

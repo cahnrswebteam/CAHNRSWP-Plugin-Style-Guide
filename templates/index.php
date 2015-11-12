@@ -8,11 +8,11 @@
 
 		<div class="column one">
 
-			<?php
-				if ( is_active_sidebar( 'style-guide' ) ) {
-					dynamic_sidebar( 'style-guide' );
-				}
-			?>
+			<header class="article-header">
+				<h1 class="article-title">Style Guide</h1>
+			</header>
+
+			<?php echo wpautop( wp_kses_post( get_option( 'style_guide_about' ) ) ); ?>
 
 			<h2>Table of Contents</h2>
 
@@ -24,11 +24,7 @@
 
 			<?php load_template( __DIR__ . '/search-form.php' ); ?>
 
-			<?php
-				if ( is_active_sidebar( 'style-guide-sidebar' ) ) {
-					dynamic_sidebar( 'style-guide-sidebar' );
-				}
-			?>
+			<?php echo wpautop( wp_kses_post( get_option( 'style_guide_footer' ) ) ); ?>
 
 		</div>
 
